@@ -9,7 +9,9 @@ function ChatWindow({ onClose }) {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
 
+  // const [imageToShow, setImageToShow] = useState(null);
   const [imageToShow, setImageToShow] = useState(null);
+  const [imageText, setImageText] = useState(""); // <--- Add this line
 
 
   const [messages, setMessages] = useState([
@@ -95,9 +97,27 @@ function ChatWindow({ onClose }) {
       setInput("");
       return;
     }
+    if (/arbaaz/i.test(text)) {
+      stopCustomMedia();
+      const audio = new Audio('/ronaldo music.mp3');
+      currentAudioRef.current = audio;
+      audio.play().catch((err) => console.error("Failed to play audio:", err));
+
+      setImageToShow('/ronaldo1.jpeg'); // Set the specific image
+
+      currentTimeoutRef.current = setTimeout(() => {
+        stopCustomMedia();
+      }, 30000);
+
+      const userMessage = { role: "user", text };
+      const fakeModelMessage = { role: "model", text: "Here is Arbaaz!" };
+      setMessages((prev) => [...prev, userMessage, fakeModelMessage]);
+      setInput("");
+      return;
+    }
     if (/nikhil/i.test(text)) {
       stopCustomMedia();
-      const audio = new Audio('/nikhil music.mp3');
+      const audio = new Audio('/nikhil2.mp3');
       currentAudioRef.current = audio;
       audio.play().catch((err) => console.error("Failed to play audio:", err));
 
@@ -120,7 +140,7 @@ function ChatWindow({ onClose }) {
       // (Audio is disabled for Amit)
 
       // FIX 1: Use exactly "/Amit.jpeg" with a capital A to match your file
-      setImageToShow('/Amit.jpeg');
+      setImageToShow(['/Amit.jpeg', '/messi1.webp']);
 
       currentTimeoutRef.current = setTimeout(() => {
         stopCustomMedia();
@@ -225,15 +245,27 @@ function ChatWindow({ onClose }) {
 
           {/* --- Show the dynamic image if one is set --- */}
           {imageToShow && (
-            <div style={{ textAlign: "center", margin: "10px" }}>
-              <img
-                src={imageToShow}
-                alt="Secret Image"
-                style={{ maxWidth: "100%", maxHeight: "400px", borderRadius: "10px" }}
-              />
+            <div style={{ textAlign: "center", margin: "10px", display: "flex", justifyContent: "center", gap: "10px", flexWrap: "wrap" }}>
+              {Array.isArray(imageToShow) ? (
+                imageToShow.map((src, idx) => (
+                  <img
+                    key={idx}
+                    src={src}
+                    alt={`Secret Image ${idx + 1}`}
+                    style={{ maxWidth: "100%", maxHeight: "400px", borderRadius: "10px" }}
+                  />
+                ))
+              ) : (
+                <img
+                  src={imageToShow}
+                  alt="Secret Image"
+                  style={{ maxWidth: "100%", maxHeight: "400px", borderRadius: "10px" }}
+                />
+              )}
             </div>
           )}
           {/* ------------------------------------------------ */}
+
 
 
           {/* FIX 2: Removed the duplicated <div className="chat-input-row"> tag here */}
