@@ -62,7 +62,22 @@ function ChatWindow({ onClose }) {
       setInput("");
       return;
     }
+    if (/aman/i.test(text)) {
+      const audio = new Audio('/aman music.mp3');
+      audio.play().catch((err) => console.error("Failed to play audio:", err));
 
+      setImageToShow('/aman.jpg'); // Set the specific image
+
+      setTimeout(() => {
+        setImageToShow(null); // Hide image after 30 seconds
+      }, 30000);
+
+      const userMessage = { role: "user", text };
+      const fakeModelMessage = { role: "model", text: "Here is Aman!" };
+      setMessages((prev) => [...prev, userMessage, fakeModelMessage]);
+      setInput("");
+      return;
+    }
     // --- Person 2: Amit ---
     // --- Person 2: Amit ---
     if (/amit/i.test(text)) {
