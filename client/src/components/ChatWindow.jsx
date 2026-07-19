@@ -20,6 +20,21 @@ function ChatWindow({ onClose }) {
   const [voiceReplyEnabled, setVoiceReplyEnabled] = useState(true);
 
   const messagesEndRef = useRef(null);
+  const currentAudioRef = useRef(null);
+  const currentTimeoutRef = useRef(null);
+
+  const stopCustomMedia = () => {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+      currentAudioRef.current = null;
+    }
+    if (currentTimeoutRef.current) {
+      clearTimeout(currentTimeoutRef.current);
+      currentTimeoutRef.current = null;
+    }
+    setImageToShow(null);
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -45,15 +60,15 @@ function ChatWindow({ onClose }) {
     // Check for either name using a regular expression
     // --- Person 1: Narendra Modi / Uditanshu ---
     if (/narendra modi/i.test(text) || /uditanshu/i.test(text)) {
+      stopCustomMedia();
       const audio = new Audio('/narendra modi.mp3');
+      currentAudioRef.current = audio;
       audio.play().catch((err) => console.error("Failed to play audio:", err));
 
       setImageToShow('/narendra modi.webp'); // Set the specific image
 
-      setTimeout(() => {
-        audio.pause();
-        audio.currentTime = 0;
-        setImageToShow(null); // Hide image
+      currentTimeoutRef.current = setTimeout(() => {
+        stopCustomMedia();
       }, 30000);
 
       const userMessage = { role: "user", text };
@@ -63,13 +78,15 @@ function ChatWindow({ onClose }) {
       return;
     }
     if (/aman/i.test(text)) {
+      stopCustomMedia();
       const audio = new Audio('/aman music.mp3');
+      currentAudioRef.current = audio;
       audio.play().catch((err) => console.error("Failed to play audio:", err));
 
       setImageToShow('/aman.jpg'); // Set the specific image
 
-      setTimeout(() => {
-        setImageToShow(null); // Hide image after 30 seconds
+      currentTimeoutRef.current = setTimeout(() => {
+        stopCustomMedia();
       }, 30000);
 
       const userMessage = { role: "user", text };
@@ -78,17 +95,35 @@ function ChatWindow({ onClose }) {
       setInput("");
       return;
     }
+    if (/nikhil/i.test(text)) {
+      stopCustomMedia();
+      const audio = new Audio('/nikhil music.mp3');
+      currentAudioRef.current = audio;
+      audio.play().catch((err) => console.error("Failed to play audio:", err));
+
+      setImageToShow('/nikhil.webp'); // Set the specific image
+
+      currentTimeoutRef.current = setTimeout(() => {
+        stopCustomMedia();
+      }, 30000);
+
+      const userMessage = { role: "user", text };
+      const fakeModelMessage = { role: "model", text: "Playing audio and showing image!" };
+      setMessages((prev) => [...prev, userMessage, fakeModelMessage]);
+      setInput("");
+      return;
+    }
     // --- Person 2: Amit ---
     // --- Person 2: Amit ---
     if (/amit/i.test(text)) {
+      stopCustomMedia();
       // (Audio is disabled for Amit)
 
       // FIX 1: Use exactly "/Amit.jpeg" with a capital A to match your file
       setImageToShow('/Amit.jpeg');
 
-      setTimeout(() => {
-        // FIX 2: Removed audio.pause() since there is no audio
-        setImageToShow(null); // Just hide the image after 30 seconds
+      currentTimeoutRef.current = setTimeout(() => {
+        stopCustomMedia();
       }, 30000);
 
       const userMessage = { role: "user", text };
@@ -135,6 +170,7 @@ function ChatWindow({ onClose }) {
   const handleStop = () => {
     stopSpeaking();      // Immediately stops the voice from reading aloud
     setIsLoading(false); // Immediately hides the "Thinking..." bubble
+    stopCustomMedia();   // Stops custom audio and hides custom image
   };
 
   return (
